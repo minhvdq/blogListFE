@@ -1,12 +1,12 @@
-const Norti = ({error}) => {
+const Er = ({error}) => {
     if (error === null){
         return null
     }
     return (
-        <div className="norti">
+        <div className="error">
             {error}
         </div>
     )
 }
 
-export default Norti
+export default Er
