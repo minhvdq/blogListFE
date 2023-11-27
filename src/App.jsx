@@ -17,9 +17,13 @@ const App = () => {
   const [norti,setNorti] = useState(null)
   const [error,setError] = useState(null)
 
+  const sortingBlogsfn = (a, b) => {
+    return b.likes - a.likes
+  }
+
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs( blogs.sort(sortingBlogsfn) )
     )  
   }, [])
 
@@ -45,7 +49,7 @@ const App = () => {
       setPassword('')
     }
     catch(exception){
-      setError("Wrong username or password")
+      setError('Wrong username or password')
       setTimeout(() => {
         setError(null)
       }, 5000)
@@ -59,15 +63,15 @@ const App = () => {
 
   const handleLike = (id) => {
     const blog = blogs.find(blog => blog.id === id)
-    const changedBlog = {...blog, likes : blog.likes+= 1}
-    blogService.update(id, changedBlog)
-    .then(result => setBlogs(blogs.map(blog => blog.id === id ? result : blog)))
+    const changedBlog = { ...blog, likes : blog.likes += 1 }
+    console.log(changedBlog)
+    blogService.update(id, changedBlog).then(result => setBlogs(blogs.map(blog => blog.id === id ? changedBlog : blog).sort(sortingBlogsfn)))
   }
 
   const addBlog = (blogObject) => {
     blogService.create(blogObject)
     .then(result => {
-      console.log(result)
+      console.log('add blog', result)
       setBlogs(blogs.concat(result))
       setNorti(`Blog ${blogObject.title} by ${blogObject.author} was added `)
       setTimeout(() => {
@@ -81,7 +85,7 @@ const App = () => {
       }, 5000)
     })
   }
-  
+
   const deleteBlog = (id) => {
     const blog = blogs.find( blog => blog.id === id)
     if(window.confirm(`Remove${blog.title} by ${blog.author} ?`)){
@@ -110,7 +114,7 @@ const App = () => {
       <p> {user.username} logged in</p>
       <button onClick={ handleLogout}> log out</button>
       <Togglable labelName = "add new blog">
-        <BlogForm createBlog = {addBlog} />
+        <BlogForm curUser = {user} createBlog = {addBlog} />
       </Togglable>
       {blogs.map(blog =>(
           <Blog key={blog.id} blog={blog} curUser = {user} handleLike = {() => handleLike(blog.id)} deleteBlog = {() => deleteBlog(blog.id)} />
